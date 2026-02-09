@@ -1,0 +1,32 @@
+[
+  {
+    "id": "life",
+    "name": "Life Insurance",
+    "description": "Protect your family's future with our comprehensive life insurance guides.",
+    "icon": "LI"
+  },
+  {
+    "id": "health",
+    "name": "Health Insurance",
+    "description": "Navigate the complex world of health coverage and medical plans.",
+    "icon": "HI"
+  },
+  {
+    "id": "military",
+    "name": "Military Insurance",
+    "description": "Specialized insurance insights for active duty and veteran families.",
+    "icon": "MI"
+  },
+  {
+    "id": "home",
+    "name": "Home Insurance",
+    "description": "Keep your home and belongings safe with the right property coverage.",
+    "icon": "HO"
+  },
+  {
+    "id": "auto",
+    "name": "Auto Insurance",
+    "description": "Find the best rates and coverage options for your vehicle.",
+    "icon": "AU"
+  }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "id": "admin",
+        "name": "Sarah Miller",
+        "bio": "Senior Insurance Analyst with over 15 years of experience in personal finance and risk management. Sarah specializes in life and health insurance strategies for modern families.",
+        "avatar": "https://i.pravatar.cc/150?u=sarah"
+    },
+    {
+        "id": "james",
+        "name": "James Thompson",
+        "bio": "A veteran of the insurance industry, James focuses on property and casualty insurance. His expertise helps homeowners and drivers navigate complex policy landscapes.",
+        "avatar": "https://i.pravatar.cc/150?u=james"
+    }
+]
