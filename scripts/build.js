@@ -31,7 +31,7 @@ function build() {
         console.log('Update successful: scripts/data.js is now in sync with /data/*.json');
         console.log(`Statistics: ${posts.length} Posts | ${categories.length} Categories`);
     } catch (error) {
-        console.error('Build failed:', error);
+        console.error('CRITICAL BUILD ERROR:', error);
         process.exit(1);
     }
 }

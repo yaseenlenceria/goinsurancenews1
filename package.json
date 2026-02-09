@@ -1,0 +1,12 @@
+{
+    "name": "insurance-insight",
+    "version": "1.0.0",
+    "description": "Insurance news and guide portal",
+    "main": "index.html",
+    "scripts": {
+        "build": "node scripts/build.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
