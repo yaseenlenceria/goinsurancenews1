@@ -6,3 +6,21 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "http://goinsurancenews.com/*"
+  to = "https://www.goinsurancenews.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.goinsurancenews.com/*"
+  to = "https://www.goinsurancenews.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://goinsurancenews.com/*"
+  to = "https://www.goinsurancenews.com/:splat"
+  status = 301
+  force = true
