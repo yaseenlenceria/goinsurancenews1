@@ -1324,12 +1324,6 @@ footer {
     .header-inner {
         position: relative;
     }
-
-    nav ul li a {
-        display: inline-block;
-        width: 100%;
-        padding: 0.35rem 0;
-    }
 }
 
 @media (max-width: 720px) {
