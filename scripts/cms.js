@@ -242,6 +242,9 @@ function updateMetadata(path) {
     } else if (path === '/blog') {
         title = 'Insurance Blog | Insurance Insight';
         desc = 'Browse the latest insurance guides, comparisons, and policy insights.';
+    } else if (path === '/admin') {
+        title = 'Admin Dashboard | Insurance Insight';
+        desc = 'System administration and content management.';
     }
 
     document.title = title;
@@ -515,7 +518,13 @@ function renderPost(content, postId) {
         `
         : '';
 
+    const isLoggedIn = localStorage.getItem('admin_session') === 'true';
+    const adminActionMarkup = isLoggedIn
+        ? `<div class="admin-post-controls container"><a href="${buildUrl('/admin')}" class="btn btn-secondary btn-compact" data-link>Edit in Dashboard</a></div>`
+        : '';
+
     content.innerHTML = `
+        ${adminActionMarkup}
         <header class="post-header-hero">
             <div class="container">
                 <div class="post-header-inner">
@@ -603,6 +612,136 @@ function render404(content) {
     `;
 }
 
+function renderAdmin(content, hero) {
+    hero.innerHTML = `
+        <section class="hero hero-compact">
+            <div class="container hero-center">
+                <span class="eyebrow">Terminal Access</span>
+                <h1>Admin Intelligence</h1>
+                <p>Manage your ecosystem, track insights, and deploy new content with precision.</p>
+            </div>
+        </section>
+    `;
+
+    const isLoggedIn = localStorage.getItem('admin_session') === 'true';
+
+    if (!isLoggedIn) {
+        content.innerHTML = `
+            <div class="container">
+                <div class="admin-login-wrapper">
+                    <div class="login-card">
+                        <h2>Welcome Back</h2>
+                        <p>Authenticate to access the command center.</p>
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" class="form-control" name="username" placeholder="Enter admin username" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Security Key</label>
+                                <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Access Dashboard</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = new FormData(form);
+            if (data.get('username') === 'admin' && data.get('password') === 'frown2026') {
+                localStorage.setItem('admin_session', 'true');
+                router();
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        });
+        return;
+    }
+
+    const stats = [
+        { label: 'Total Posts', value: state.posts.length },
+        { label: 'Categories', value: state.categories.length },
+        { label: 'Featured', value: state.posts.filter(p => p.featured).length },
+        { label: 'Total Authors', value: state.authors.length }
+    ];
+
+    const postsHtml = state.posts.map(p => `
+        <tr>
+            <td>
+                <div style="font-weight: 600;">${p.title}</div>
+                <div class="post-id">${p.id}</div>
+            </td>
+            <td>${formatDate(p.date, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+            <td><span class="post-topic-link" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">${p.category}</span></td>
+            <td>
+                <span class="post-status ${p.featured ? 'post-featured' : ''}">
+                    ${p.featured ? 'Featured' : 'Published'}
+                </span>
+            </td>
+            <td>
+                <div class="admin-actions">
+                    <button class="btn-icon" title="Edit Post"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <button class="btn-icon" title="Delete Post"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    content.innerHTML = `
+        <div class="container admin-dashboard">
+            <div class="dashboard-header">
+                <div>
+                    <h2>System Overview</h2>
+                    <p class="ink-500">Managing global insurance content nodes.</p>
+                </div>
+                <div class="admin-actions">
+                    <button class="btn btn-secondary" id="logout-btn">Logout Session</button>
+                    <button class="btn btn-primary">+ Create New Post</button>
+                </div>
+            </div>
+
+            <div class="dashboard-stats">
+                ${stats.map(s => `
+                    <div class="stat-card">
+                        <span class="label">${s.label}</span>
+                        <span class="value">${s.value}</span>
+                    </div>
+                `).join('')}
+                <div class="stat-card accent">
+                    <span class="label">Cloud Status</span>
+                    <span class="value">Active</span>
+                </div>
+            </div>
+
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Content Details</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${postsHtml}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('admin_session');
+        router();
+    });
+}
+
 function router() {
     const content = document.getElementById('content');
     const hero = document.getElementById('hero-container');
@@ -638,6 +777,8 @@ function router() {
         renderHome(content, hero);
     } else if (path === '/blog') {
         renderBlogListing(content, hero);
+    } else if (path === '/admin') {
+        renderAdmin(content, hero);
     } else if (path.startsWith('/category/')) {
         const categoryId = path.replace(/\/$/, '').split('/').pop();
         renderCategory(content, hero, categoryId);
@@ -657,6 +798,7 @@ function router() {
 
     updateMetadata(path);
 }
+
 
 function init() {
     const footerCats = document.getElementById('footer-categories');
