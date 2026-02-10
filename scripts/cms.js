@@ -223,6 +223,7 @@ function navigate(url) {
 function updateMetadata(path) {
     let title = 'Insurance Insight | Expert Insurance Guides & News';
     let desc = 'Get expert advice and educational guides on life, health, military, and home insurance.';
+    let image = `${SITE_URL}/media/blog/thumb_health_2026_1770658729173.png`;
     const canonicalPath = path === '' ? '/' : path;
 
     if (path.startsWith('/post/')) {
@@ -231,6 +232,7 @@ function updateMetadata(path) {
         if (post) {
             title = `${post.title} | Insurance Insight`;
             desc = post.excerpt;
+            image = buildUrl(post.image);
         }
     } else if (path.startsWith('/category/')) {
         const catId = path.replace(/\/$/, '').split('/').pop();
@@ -252,7 +254,87 @@ function updateMetadata(path) {
     if (metaDesc) metaDesc.setAttribute('content', desc);
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.setAttribute('href', buildUrl(canonicalPath));
+
+    const setMeta = (selector, value, attr = 'content') => {
+        const tag = document.querySelector(selector);
+        if (tag) tag.setAttribute(attr, value);
+    };
+
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', desc);
+    setMeta('meta[property="og:url"]', buildUrl(canonicalPath));
+    setMeta('meta[property="og:image"]', image);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', desc);
+    setMeta('meta[name="twitter:image"]', image);
 }
+
+function updateStructuredData(path) {
+    const script = document.getElementById('structured-data');
+    if (!script) return;
+
+    let schema = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Insurance Insight',
+        url: SITE_URL,
+        potentialAction: {
+            '@type': 'SearchAction',
+            target: `${SITE_URL}/blog`,
+            'query-input': 'required name=search_term_string'
+        }
+    };
+
+    if (path.startsWith('/post/')) {
+        const postId = path.replace(/\/$/, '').split('/').pop();
+        const post = state.posts.find(p => p.id === postId);
+        const author = post ? state.authors.find(a => a.id === post.author) : null;
+        const category = post ? state.categories.find(c => c.id === post.category) : null;
+
+        if (post) {
+            schema = {
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                headline: post.title,
+                description: post.excerpt,
+                image: [buildUrl(post.image)],
+                datePublished: post.date,
+                dateModified: post.date,
+                mainEntityOfPage: buildUrl(path),
+                author: {
+                    '@type': 'Person',
+                    name: author ? author.name : 'Insurance Insight Editorial'
+                },
+                publisher: {
+                    '@type': 'Organization',
+                    name: 'Insurance Insight',
+                    url: SITE_URL
+                },
+                articleSection: category ? category.name : 'Insurance'
+            };
+        }
+    }
+
+    script.textContent = JSON.stringify(schema);
+}
+
+function buildRelatedLinks(post) {
+    const related = state.posts
+        .filter(p => p.id !== post.id && (p.category === post.category || p.author === post.author))
+        .slice(0, 3);
+
+    if (!related.length) return '';
+
+    return `
+        <section class="related-links" aria-label="Related insurance guides">
+            <h3>Related reads</h3>
+            <ul>
+                ${related.map(item => `<li><a href="${buildUrl(`/post/${item.id}`)}" data-link>${item.title}</a></li>`).join('')}
+            </ul>
+        </section>
+    `;
+}
+
 
 const BlogCard = (post) => {
     const category = state.categories.find(c => c.id === post.category);
@@ -556,7 +638,9 @@ function renderPost(content, postId) {
                     <div class="post-body-wrapper">
                         ${tocMarkup}
                         <div class="post-content-rich">
+                            <p class="quick-answer"><strong>Quick answer:</strong> ${post.excerpt}</p>
                             ${html}
+                            ${buildRelatedLinks(post)}
                         </div>
                         <div class="ad-slot">In-article ad placement</div>
                         <div class="author-card">
@@ -797,6 +881,7 @@ function router() {
     }
 
     updateMetadata(path);
+    updateStructuredData(path);
 }
 
 
@@ -812,6 +897,13 @@ function init() {
             e.preventDefault();
             const url = link.getAttribute('href');
             navigate(url);
+
+            const nav = document.getElementById('main-nav');
+            const menuToggle = document.getElementById('menu-toggle');
+            if (nav && nav.classList.contains('active')) {
+                nav.classList.remove('active');
+                if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+            }
         }
     });
 
@@ -826,6 +918,16 @@ function init() {
                 nav.classList.toggle('active');
                 const isOpen = nav.classList.contains('active');
                 menuToggle.setAttribute('aria-expanded', String(isOpen));
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const nav = document.getElementById('main-nav');
+                if (nav && nav.classList.contains('active')) {
+                    nav.classList.remove('active');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
             }
         });
     }
