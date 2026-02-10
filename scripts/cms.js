@@ -833,6 +833,9 @@ function router() {
 
     content.innerHTML = '';
     hero.innerHTML = '';
+    document.body.classList.remove('nav-open');
+    const menuToggle = document.getElementById('menu-toggle');
+    if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
     window.scrollTo(0, 0);
 
     document.querySelectorAll('nav a').forEach(a => {
@@ -895,16 +898,15 @@ function init() {
         const link = e.target.closest('[data-link]');
         if (link) {
             e.preventDefault();
-            const url = link.getAttribute('href');
-            navigate(url);
 
             const nav = document.getElementById('main-nav');
             const menuToggle = document.getElementById('menu-toggle');
-            if (nav && nav.classList.contains('active')) {
-                nav.classList.remove('active');
-                document.body.classList.remove('nav-open');
-                if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
-            }
+            if (nav) nav.classList.remove('active');
+            document.body.classList.remove('nav-open');
+            if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+
+            const url = link.getAttribute('href');
+            navigate(url);
         }
     });
 
